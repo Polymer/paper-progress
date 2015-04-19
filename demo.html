@@ -91,7 +91,7 @@
         }
         progress.value = progress.min;
       }
-      progress.async(nextProgress);
+      progress.async(nextProgress, 1);
     }
     
     function startProgress() {
@@ -103,7 +103,8 @@
       }
     }
     
-    addEventListener('polymer-ready', function() {
+    addEventListener('WebComponentsReady', function() {
+        document.body.removeAttribute('unresolved');
       startProgress();
     });
     
