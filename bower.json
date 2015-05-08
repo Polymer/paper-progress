@@ -2,7 +2,7 @@
   "name": "paper-progress",
   "private": true,
   "dependencies": {
-    "core-range": "Polymer/core-range#master",
-    "paper-button": "Polymer/paper-button#master"
+    "core-range": "Polymer/core-range#0.8-preview",
+    "paper-button": "Polymer/paper-button#0.8-preview"
   }
 }

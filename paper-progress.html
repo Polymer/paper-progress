@@ -50,17 +50,18 @@ To change the progress bar background color:
 -->
 
 <link rel="import" href="../core-range/core-range.html">
+<link rel="import" href="../layout/layout.html">
 
-<polymer-element name="paper-progress" extends="core-range" attributes="secondaryProgress indeterminate">
+<dom-module id="paper-progress" attributes="secondaryProgress indeterminate">
 
-  <template>
+  <link rel="import" type="css" href="paper-progress.css">
   
-    <link rel="stylesheet" href="paper-progress.css">
+  <template>
   
     <div id="progressContainer" role="progressbar" aria-valuenow="{{value}}" aria-valuemin="{{min}}" aria-valuemax="{{max}}">
     
-      <div id="secondaryProgress" fit></div>
-      <div id="activeProgress" fit></div>
+      <div id="secondaryProgress" class="fit"></div>
+      <div id="activeProgress" class="fit"></div>
       
     </div>
     
@@ -68,55 +69,136 @@ To change the progress bar background color:
   
   <script>
   
-    Polymer('paper-progress', {
-      
-      /**
-       * The number that represents the current secondary progress.
-       *
-       * @attribute secondaryProgress
-       * @type number
-       * @default 0
-       */
-      secondaryProgress: 0,
-      
-      /**
-       * Use an indeterminate progress indicator.
-       *
-       * @attribute indeterminate
-       * @type boolean
-       * @default false
-       */
-      indeterminate: false,
+    Polymer({
+        is: 'paper-progress',
 
-      step: 0,
+        mixins: [Polymer.Core.Ranged],
+
+        properties: {
+            /**
+             * The number that represents the current value.
+             *
+             * @attribute value
+             * @type number
+             * @default 0
+             */
+            value: {
+                type: Number,
+                value: 0,
+                notify: true,
+                reflectToAttribute: true,
+            },
+
+            /**
+             * The number that indicates the minimum value of the range.
+             *
+             * @attribute min
+             * @type number
+             * @default 0
+             */
+            min: {
+                type: Number,
+                value: 0,
+                notify: true,
+                reflectToAttribute: true,
+            },
+
+            /**
+             * The number that indicates the maximum value of the range.
+             *
+             * @attribute max
+             * @type number
+             * @default 100
+             */
+            max: {
+                type: Number,
+                value: 100,
+                notify: true,
+                reflectToAttribute: true,
+            },
+
+            /**
+             * Specifies the value granularity of the range's value.
+             *
+             * @attribute step
+             * @type number
+             * @default 1
+             */
+            step: {
+                type: Number,
+                value: 1,
+                notify: true,
+                reflectToAttribute: true,
+            },
+
+            /**
+             * Returns the ratio of the value.
+             *
+             * @attribute ratio
+             * @type number
+             * @default 0
+             */
+            ratio: {
+                type: Number,
+                value: 0,
+                notify: true,
+                reflectToAttribute: true,
+                observer: 'ratioChanged',
+            },
+
+            /**
+             * The number that represents the current secondary progress.
+             *
+             * @attribute secondaryProgress
+             * @type number
+             * @default 0
+             */
+            secondaryProgress: {
+                type: Number,
+                value: 0,
+                observer: 'secondaryRatioChanged',
+            },
+            /**
+             * Use an indeterminate progress indicator.
+             *
+             * @attribute indeterminate
+             * @type boolean
+             * @default false
+             */
+            indeterminate: {
+                type: Boolean,
+                value: false,
+            }
+        },
+
+        step: 0,
+
+        observers: {
+            'value min max step secondaryProgress indeterminate': 'updateProgress'
+        },
       
-      observe: {
-        'value secondaryProgress min max indeterminate': 'update'
-      },
-      
-      update: function() {
-        this.super();
-        this.secondaryProgress = this.clampValue(this.secondaryProgress);
-        this.secondaryRatio = this.calcRatio(this.secondaryProgress) * 100;
+        updateProgress: function() {
+            this.update();
+            this.secondaryProgress = this.clampValue(this.secondaryProgress);
+            this.secondaryRatio = this.calcRatio(this.secondaryProgress) * 100;
 
-        // If we use attribute/class binding, the animation sometimes doesn't translate properly
-        // on Safari 7.1. So instead, we toggle the class here in the update method.
-        this.$.activeProgress.classList.toggle('indeterminate', this.indeterminate);
-      },
+            // If we use attribute/class binding, the animation sometimes doesn't translate properly
+            // on Safari 7.1. So instead, we toggle the class here in the update method.
+            this.$.activeProgress.classList.toggle('indeterminate', this.indeterminate);
+        },
 
-      transformProgress: function(progress, ratio) {
-        var transform = 'scaleX(' + (ratio / 100) + ')';
-        progress.style.transform = progress.style.webkitTransform = transform;
-      },
+        transformProgress: function(progress, ratio) {
+            var transform = 'scaleX(' + (ratio / 100) + ')';
+            progress.style.transform = progress.style.webkitTransform = transform;
+        },
 
-      ratioChanged: function() {
-        this.transformProgress(this.$.activeProgress, this.ratio);
-      },
+        ratioChanged: function() {
+            this.transformProgress(this.$.activeProgress, this.ratio);
+        },
 
-      secondaryRatioChanged: function() {
-        this.transformProgress(this.$.secondaryProgress, this.secondaryRatio);
-      }
-      
+        secondaryRatioChanged: function() {
+            this.transformProgress(this.$.secondaryProgress, this.secondaryRatio);
+        }
     });
     
   </script>
